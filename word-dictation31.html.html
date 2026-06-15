@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语听读听写作业</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        header {
+            background: #4e54c8;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 2px dashed #dee2e6;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+        
+        .instructions strong {
+            color: #e74c3c;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+        
+        h2 {
+            color: #4e54c8;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .word-item {
+            background: #eef2ff;
+            padding: 12px 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex: 1 0 calc(50% - 10px);
+            min-width: 0;
+        }
+        
+        .word-text {
+            font-weight: bold;
+            color: #3f51b5;
+        }
+        
+        .audio-btn {
+            background: #4e54c8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .audio-btn:hover {
+            background: #3f51b5;
+            transform: scale(1.05);
+        }
+        
+        .audio-btn.playing {
+            background: #ff5252;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .sentence {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #4e54c8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dictation {
+            background: #fff4e6;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .notebook-prompt {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            margin: 15px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            border: 2px dashed #fd7e14;
+        }
+        
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .control-btn {
+            background: #4e54c8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: #3f51b5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .control-btn.play-all {
+            background: #00b894;
+        }
+        
+        .control-btn.stop {
+            background: #e74c3c;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .status {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-align: center;
+            margin-top: 5px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 20px;
+        }
+        
+        @media (max-width: 480px) {
+            .word-item {
+                flex: 1 0 100%;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>英语听读听写作业</h1>
+            <p>如何成为一个好朋友</p>
+        </header>
+        
+        <div class="instructions">
+            <p><strong>使用说明：</strong> 第一部分会自动朗读单词供听写，第二、三部分可点击按钮跟读，第四部分请在作业本上听写句子。</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>第一部分：单词听写</h2>
+                <p>点击"播放所有单词"按钮，系统将自动朗读以下单词（每个单词读三遍）：</p>
+                
+                <div class="word-list">
+                    <div class="word-item">
+                        <span class="word-text">smile</span>
+                        <button class="audio-btn" data-text="smile">▶</button>
+                    </div>
+                    <div class="word-item">
+                        <span class="word-text">listen</span>
+                        <button class="audio-btn" data-text="listen">▶</button>
+                    </div>
+                    <div class="word-item">
+                        <span class="word-text">help</span>
+                        <button class="audio-btn" data-text="help">▶</button>
+                    </div>
+                    <div class="word-item">
+                        <span class="word-text">share</span>
+                        <button class="audio-btn" data-text="share">▶</button>
+                    </div>
+                    <div class="word-item">
+                        <span class="word-text">say</span>
+                        <button class="audio-btn" data-text="say">▶</button>
+                    </div>
+                    <div class="word-item">
+                        <span class="word-text">care</span>
+                        <button class="audio-btn" data-text="care">▶</button>
+                    </div>
+                </div>
+                
+                <div class="control-panel">
+                    <button class="control-btn play-all" id="playAllWords">
+                        <span>▶</span> 播放所有单词
+                    </button>
+                    <button class="control-btn stop" id="stopPlayback">
+                        <span>⏹</span> 停止播放
+                    </button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>第二部分：句子跟读</h2>
+                <p>点击句子旁边的按钮跟读（每个句子读三遍）：</p>
+                
+                <div class="sentence">
+                    <p>I say "Hi!" and "Goodbye!"</p>
+                    <button class="audio-btn" data-text="I say 'Hi!' and 'Goodbye!'">▶</button>
+                </div>
+                
+                <div class="sentence">
+                    <p>I listen with care.</p>
+                    <button class="audio-btn" data-text="I listen with care.">▶</button>
+                </div>
+                
+                <div class="sentence">
+                    <p>I share my toys.</p>
+                    <button class="audio-btn" data-text="I share my toys.">▶</button>
+                </div>
+                
+                <div class="sentence">
+                    <p>I help my friends.</p>
+                    <button class="audio-btn" data-text="I help my friends.">▶</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>第三部分：对话跟读</h2>
+                <p>点击对话旁边的按钮跟读（每个对话读三遍）：</p>
+                
+                <div class="sentence">
+                    <p>Oh no! - It's OK, Chen Jie. We can share.</p>
+                    <button class="audio-btn" data-text="Oh no! It's OK, Chen Jie. We can share.">▶</button>
+                </div>
+                
+                <div class="sentence">
+                    <p>Thanks, Sarah. - Hey, Sarah! We can share. - Thank you, Chen Jie.</p>
+                    <button class="audio-btn" data-text="Thanks, Sarah. Hey, Sarah! We can share. Thank you, Chen Jie.">▶</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>第四部分：句子听写</h2>
+                <div class="notebook-prompt">
+                    <p>请打开英语作业本，准备听写句子</p>
+                </div>
+                
+                <div class="dictation">
+                    <p>点击下方按钮听写句子（每个句子读三遍）：</p>
+                    
+                    <div class="control-panel">
+                        <button class="audio-btn" data-text="A good friend listens and shares." style="margin: 0 auto; padding: 12px 20px; border-radius: 30px;">
+                            播放句子 1
+                        </button>
+                        <button class="audio-btn" data-text="We can help our friends and be nice to them." style="margin: 0 auto; padding: 12px 20px; border-radius: 30px;">
+                            播放句子 2
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>完成所有练习后，请检查你的听写是否正确</p>
+            <p class="status" id="status">准备就绪 - 点击上方按钮开始学习</p>
+        </footer>
+    </div>
+
+    <script>
+        // 语音合成功能
+        class SpeechManager {
+            constructor() {
+                this.isSpeaking = false;
+                this.utterances = [];
+                this.currentIndex = 0;
+                this.repeatCount = 0;
+                this.maxRepeats = 3;
+                this.repeatDelay = 3000; // 3秒
+                
+                // 尝试获取可用的语音
+                this.voices = [];
+                this.maleVoice = null;
+                this.femaleVoice = null;
+                this.loadVoices();
+                
+                // 语音加载事件
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        this.loadVoices();
+                    };
+                }
+            }
+            
+            loadVoices() {
+                this.voices = speechSynthesis.getVoices();
+                
+                // 尝试找到男声和女声
+                this.maleVoice = this.findVoiceByGender('male');
+                this.femaleVoice = this.findVoiceByGender('female');
+                
+                // 如果没有找到特定性别的语音，使用默认语音
+                if (!this.maleVoice || !this.femaleVoice) {
+                    const defaultVoice = this.voices.find(voice => voice.lang.includes('en')) || this.voices[0];
+                    if (!this.maleVoice) this.maleVoice = defaultVoice;
+                    if (!this.femaleVoice) this.femaleVoice = defaultVoice;
+                }
+                
+                console.log("Male voice:", this.maleVoice ? this.maleVoice.name : "Not found");
+                console.log("Female voice:", this.femaleVoice ? this.femaleVoice.name : "Not found");
+            }
+            
+            findVoiceByGender(gender) {
+                // 尝试找到符合性别的语音
+                const genderKeywords = gender === 'male' 
+                    ? ['male', 'david', 'thomas', 'alex', 'daniel'] 
+                    : ['female', 'karen', 'samantha', 'victoria', 'lisa'];
+                
+                for (let voice of this.voices) {
+                    const name = voice.name.toLowerCase();
+                    if (genderKeywords.some(keyword => name.includes(keyword))) {
+                        return voice;
+                    }
+                }
+                
+                // 尝试英语语音
+                for (let voice of this.voices) {
+                    if (voice.lang.includes('en')) {
+                        return voice;
+                    }
+                }
+                
+                return null;
+            }
+            
+            speak(text, buttonElement = null) {
+                if (this.isSpeaking) {
+                    this.stop();
+                }
+                
+                this.isSpeaking = true;
+                this.currentButton = buttonElement;
+                this.utterances = [];
+                this.currentIndex = 0;
+                this.repeatCount = 0;
+                
+                // 创建男声和女声的语音对象
+                for (let i = 0; i < this.maxRepeats; i++) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.6; // 语速0.6
+                    utterance.pitch = 1.0; // 音高
+                    utterance.volume = 1.0; // 音量
+                    
+                    // 交替使用男女声
+                    if (i % 2 === 0 && this.maleVoice) {
+                        utterance.voice = this.maleVoice;
+                        utterance.pitch = 0.9; // 男声音调稍低
+                    } else if (this.femaleVoice) {
+                        utterance.voice = this.femaleVoice;
+                        utterance.pitch = 1.1; // 女声音调稍高
+                    }
+                    
+                    utterance.onend = () => {
+                        this.repeatCount++;
+                        if (this.repeatCount < this.maxRepeats) {
+                            setTimeout(() => {
+                                speechSynthesis.speak(this.utterances[this.repeatCount]);
+                            }, this.repeatDelay);
+                        } else {
+                            this.isSpeaking = false;
+                            if (this.currentButton) {
+                                this.currentButton.classList.remove('playing');
+                            }
+                            document.getElementById('status').textContent = '朗读完成';
+                        }
+                    };
+                    
+                    this.utterances.push(utterance);
+                }
+                
+                // 开始朗读
+                if (buttonElement) {
+                    buttonElement.classList.add('playing');
+                    document.getElementById('status').textContent = '正在朗读...';
+                }
+                
+                speechSynthesis.speak(this.utterances[0]);
+            }
+            
+            stop() {
+                speechSynthesis.cancel();
+                this.isSpeaking = false;
+                if (this.currentButton) {
+                    this.currentButton.classList.remove('playing');
+                }
+                document.getElementById('status').textContent = '已停止播放';
+            }
+            
+            // 播放所有单词
+            playAllWords() {
+                const words = ['smile', 'listen', 'help', 'share', 'say', 'care'];
+                let index = 0;
+                
+                const playNextWord = () => {
+                    if (index < words.length) {
+                        document.getElementById('status').textContent = `正在播放单词: ${words[index]}`;
+                        
+                        // 高亮当前单词
+                        const buttons = document.querySelectorAll('.audio-btn');
+                        buttons.forEach(btn => {
+                            if (btn.getAttribute('data-text') === words[index]) {
+                                btn.classList.add('playing');
+                            }
+                        });
+                        
+                        this.speak(words[index]);
+                        
+                        // 设置下一个单词的播放
+                        setTimeout(() => {
+                            // 移除高亮
+                            buttons.forEach(btn => btn.classList.remove('playing'));
+                            index++;
+                            playNextWord();
+                        }, this.maxRepeats * this.repeatDelay + 2000); // 等待当前单词播放完成
+                    } else {
+                        document.getElementById('status').textContent = '所有单词播放完成';
+                    }
+                };
+                
+                playNextWord();
+            }
+        }
+        
+        // 初始化语音管理器
+        const speechManager = new SpeechManager();
+        
+        // 为所有音频按钮添加事件监听器
+        document.querySelectorAll('.audio-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const text = this.getAttribute('data-text');
+                if (text) {
+                    speechManager.speak(text, this);
+                }
+            });
+        });
+        
+        // 播放所有单词按钮
+        document.getElementById('playAllWords').addEventListener('click', function() {
+            speechManager.playAllWords();
+        });
+        
+        // 停止播放按钮
+        document.getElementById('stopPlayback').addEventListener('click', function() {
+            speechManager.stop();
+        });
+        
+        // 页面加载时尝试加载语音
+        window.addEventListener('load', function() {
+            if (speechSynthesis.getVoices().length > 0) {
+                speechManager.loadVoices();
+                document.getElementById('status').textContent = '语音加载完成，可以开始学习';
+            } else {
+                document.getElementById('status').textContent = '正在加载语音，请稍候...';
+                setTimeout(() => {
+                    speechManager.loadVoices();
+                    document.getElementById('status').textContent = '语音加载完成，可以开始学习';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
